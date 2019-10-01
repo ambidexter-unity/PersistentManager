@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Common.Service;
-using UniRx;
+using Common.GameService;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Zenject;
 
 namespace Common.PersistentManager
 {
-	[DisallowMultipleComponent]
-	public class PersistentManager : MonoInstaller<PersistentManager>, IPersistentManager
+	public class PersistentManager : IPersistentManager
 	{
 		private enum StorageType
 		{
@@ -23,7 +20,7 @@ namespace Common.PersistentManager
 		public const string PersistentKey = "good_night_tamafish";
 		public static string SavedDataPath => Path.Combine(Application.persistentDataPath, "savedata.json");
 
-		private readonly BoolReactiveProperty _ready = new BoolReactiveProperty(false);
+		private bool _ready = false;
 
 		// Вспомогательные классы для сериализации записей сохраняемыж данных.
 		[Serializable]
@@ -49,20 +46,16 @@ namespace Common.PersistentManager
 		private readonly RawData _rawFileData = new RawData();
 		private bool _isValid;
 
-		public override void InstallBindings()
-		{
-			Container.Bind<IPersistentManager>().FromInstance(this);
-		}
-
 		// IGameService
 
-		void IGameService.Initialize()
+		public void Initialize(params object[] args)
 		{
 			RestoreGameData();
-			_ready.SetValueAndForceNotify(true);
+			_ready = true;
 		}
 
-		public IReadOnlyReactiveProperty<bool> Ready => _ready;
+		
+		public bool IsReady => _ready;
 
 		// \IGameService		
 
@@ -76,7 +69,7 @@ namespace Common.PersistentManager
 
 		public void Persist<T>(T data, bool asPlayerPrefs = false, bool lazy = false) where T : IPersistent<T>, new()
 		{
-			Assert.IsTrue(Ready.Value);
+			Assert.IsTrue(IsReady);
 
 			if (asPlayerPrefs)
 			{
@@ -99,7 +92,7 @@ namespace Common.PersistentManager
 
 		public bool Restore<T>(T data) where T : IPersistent<T>, new()
 		{
-			Assert.IsTrue(Ready.Value);
+			Assert.IsTrue(IsReady);
 
 			var rawData = _rawFileData.rawData.SingleOrDefault(record => record.key == data.PersistentId) ??
 			              _rawPlayerPrefsData.rawData.SingleOrDefault(record => record.key == data.PersistentId);
@@ -114,7 +107,7 @@ namespace Common.PersistentManager
 
 		public T GetPersistentValue<T>() where T : IPersistent<T>, new()
 		{
-			Assert.IsTrue(Ready.Value);
+			Assert.IsTrue(IsReady);
 
 			var res = new T();
 			Restore(res);
@@ -123,7 +116,7 @@ namespace Common.PersistentManager
 
 		public bool Remove<T>(T data) where T : IPersistent<T>, new()
 		{
-			Assert.IsTrue(Ready.Value);
+			Assert.IsTrue(IsReady);
 
 			if (data == null)
 			{
@@ -135,7 +128,7 @@ namespace Common.PersistentManager
 
 		public bool Remove(string id)
 		{
-			Assert.IsTrue(Ready.Value);
+			Assert.IsTrue(IsReady);
 
 			var res = false;
 			if (_rawFileData.rawData.RemoveAll(record => record.key == id) > 0)
@@ -198,5 +191,9 @@ namespace Common.PersistentManager
 
 			_isValid = true;
 		}
+
+
+		
+		public event GameServiceReadyHandler ReadyEvent;
 	}
 }

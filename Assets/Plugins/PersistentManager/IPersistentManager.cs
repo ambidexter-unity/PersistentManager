@@ -1,4 +1,4 @@
-using Common.Service;
+using Common.GameService;
 
 namespace Common.PersistentManager
 {

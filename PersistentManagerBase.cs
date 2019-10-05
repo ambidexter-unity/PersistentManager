@@ -17,10 +17,12 @@ namespace Common.PersistentManager
 			PlayerPrefs
 		}
 
-		public const string PersistentKey = "good_night_tamafish";
+		public abstract string PersistentKey { get; }
 		public static string SavedDataPath => Path.Combine(Application.persistentDataPath, "savedata.json");
 
 		private bool _ready = false;
+		
+		private bool _isInitialized;
 
 		// Вспомогательные классы для сериализации записей сохраняемыж данных.
 		[Serializable]
@@ -48,14 +50,32 @@ namespace Common.PersistentManager
 
 		// IGameService
 
-		public void Initialize(params object[] args)
+		public virtual void Initialize(params object[] args)
 		{
+			if (IsReady || _isInitialized)
+			{
+				Debug.LogError("Persistent manager already initialized.");
+				return;
+			}
+
+			_isInitialized = true;
+			
 			RestoreGameData();
-			_ready = true;
+			IsReady = true;
 		}
 
-		
-		public bool IsReady => _ready;
+		public bool IsReady
+		{
+			get => _ready;
+			private set
+			{
+				if (value == _ready) return;
+
+				Assert.IsFalse(_ready);
+				_ready = value;
+				ReadyEvent?.Invoke(this);
+			}
+		}
 
 		// \IGameService		
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Common.GameService;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -168,11 +169,11 @@ namespace Common.PersistentManager
 			return res;
 		}
 
-		public bool Download<T>(T data) where T : iDownloadable<T>, new()
+		public async Task<bool> Download<T>(T data) where T : iDownloadable<T>, new()
 		{
 			Assert.IsTrue(IsReady);
 
-			return data.Download(data);
+			return await data.Download<T>();
 		}
 
 		// \IPersistentManager

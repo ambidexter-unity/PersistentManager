@@ -168,6 +168,13 @@ namespace Common.PersistentManager
 			return res;
 		}
 
+		public bool Download<T>(T data) where T : iDownloadable<T>, new()
+		{
+			Assert.IsTrue(IsReady);
+
+			return data.Download(data);
+		}
+
 		// \IPersistentManager
 
 		private void RestoreGameData()

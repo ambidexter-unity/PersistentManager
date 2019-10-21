@@ -46,5 +46,13 @@ namespace Common.PersistentManager
 		/// <param name="id">Идентификатор объекта, данные которого удаляются.</param>
 		/// <returns>Возвращает <code>true</code>, если данные были найдены и успешно удалены.</returns>
 		bool Remove(string id);
+		
+		/// <summary>
+		/// Восстановить состояние объекта c сервера.
+		/// </summary>
+		/// <param name="data">Объект, подлежащий восстановлению.</param>
+		/// <typeparam name="T">Тип восстанавливаемого объекта.</typeparam>
+		/// <returns>Возвращает <code>true</code>, если данные были скачены и объект восстановлен.</returns>
+		bool Download<T>(T data) where T : iDownloadable<T>, new();
 	}
 }

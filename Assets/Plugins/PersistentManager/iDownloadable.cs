@@ -6,7 +6,7 @@ namespace Common.PersistentManager
     /// Интерфейс объекта, который хранится на сервере и который можно только скачать
     /// </summary>
     /// <typeparam name="T">Класс сохраняемого объекта.</typeparam>
-    public interface iDownloadable<T> where T : new()
+    public interface iDownloadable<T>
     {
         /// <summary>
         /// Метод скачивания объекта.

@@ -169,7 +169,7 @@ namespace Common.PersistentManager
 			return res;
 		}
 
-		public async Task<bool> Download<T>(T data) where T : iDownloadable<T>, new()
+		public async Task<bool> Download<T>(T data) where T : iDownloadable<T>
 		{
 			Assert.IsTrue(IsReady);
 

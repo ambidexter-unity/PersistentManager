@@ -54,6 +54,6 @@ namespace Common.PersistentManager
 		/// <param name="data">Объект, подлежащий восстановлению.</param>
 		/// <typeparam name="T">Тип восстанавливаемого объекта.</typeparam>
 		/// <returns>Возвращает <code>true</code>, если данные были скачены и объект восстановлен.</returns>
-		Task<bool> Download<T>(T data) where T : iDownloadable<T>, new();
+		Task<bool> Download<T>(T data) where T : iDownloadable<T>;
 	}
 }

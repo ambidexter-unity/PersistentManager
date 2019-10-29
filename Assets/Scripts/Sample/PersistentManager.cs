@@ -7,5 +7,8 @@ public class PersistentManager : PersistentManagerBase
 {
     public override string PersistentKey => "sample";
 
-    protected override Func<string, Task<Stream>> getStreamAsync => throw new NotImplementedException();
+    public override Task<bool> Download<T>(T data)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.GameService;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System.Runtime.Serialization.Json;
 
 namespace Common.PersistentManager
 {
@@ -20,8 +21,9 @@ namespace Common.PersistentManager
 
 		public abstract string PersistentKey { get; }
 		public static string SavedDataPath => Path.Combine(Application.persistentDataPath, "savedata.json");
+        //protected abstract Func<string, Task<Stream>> getStreamAsync { get; }
 
-		private bool _ready = false;
+        private bool _ready = false;
 		
 		private bool _isInitialized;
 
@@ -169,12 +171,7 @@ namespace Common.PersistentManager
 			return res;
 		}
 
-		public async Task<bool> Download<T>(T data) where T : iDownloadable<T>
-		{
-			Assert.IsTrue(IsReady);
-
-			return await data.Download<T>();
-		}
+        public abstract Task<bool> Download<T>(T data) where T : iDownloadable<T>, new();
 
 		// \IPersistentManager
 
@@ -219,8 +216,6 @@ namespace Common.PersistentManager
 
 			_isValid = true;
 		}
-
-
 		
 		public event GameServiceReadyHandler ReadyEvent;
 	}

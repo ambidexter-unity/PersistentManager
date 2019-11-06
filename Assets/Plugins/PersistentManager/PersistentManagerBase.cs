@@ -171,7 +171,7 @@ namespace Common.PersistentManager
 			return res;
 		}
 
-        public abstract Task<bool> Download<T>(T data) where T : iDownloadable<T>, new();
+        public abstract Task<bool> Download<T>(T data) where T : class, iDownloadable<T>, new();
 
 		// \IPersistentManager
 

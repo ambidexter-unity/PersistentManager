@@ -15,6 +15,6 @@ namespace Common.PersistentManager
         /// <param name="data">Данные, из которых должен восстанавливаться объект.</param>
         /// <typeparam name="T1">Тип данных, из которых восстанавливается объект.</typeparam>
         /// <returns>Возвращает <code>true</code>, если данные были скачены и объект восстановлен.</returns>
-        void Download<T1>(T1 data) where T1 : iDownloadable<T>;
+        void Download(T data);
     }
 }

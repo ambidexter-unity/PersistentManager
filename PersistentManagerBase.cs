@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Common.GameService;
 using UnityEngine;
 using UnityEngine.Assertions;
-using System.Runtime.Serialization.Json;
 
+// ReSharper disable once CheckNamespace
 namespace Common.PersistentManager
 {
 	public abstract class PersistentManagerBase : MonoBehaviour, IPersistentManager
@@ -21,10 +22,12 @@ namespace Common.PersistentManager
 
 		public abstract string PersistentKey { get; }
 		public static string SavedDataPath => Path.Combine(Application.persistentDataPath, "savedata.json");
-        //protected abstract Func<string, Task<Stream>> getStreamAsync { get; }
 
-        private bool _ready = false;
-		
+		public static string BackupSavedDataPath =>
+			Path.Combine(Application.persistentDataPath, "savedata.json.backup");
+
+		private bool _ready;
+
 		private bool _isInitialized;
 
 		// Вспомогательные классы для сериализации записей сохраняемыж данных.
@@ -62,7 +65,7 @@ namespace Common.PersistentManager
 			}
 
 			_isInitialized = true;
-			
+
 			RestoreGameData();
 			IsReady = true;
 		}
@@ -171,7 +174,7 @@ namespace Common.PersistentManager
 			return res;
 		}
 
-        public abstract Task<bool> Download<T>(T data) where T : class, iDownloadable<T>, new();
+		public abstract Task<bool> Download<T>(T data) where T : class, iDownloadable<T>, new();
 
 		// \IPersistentManager
 
@@ -186,7 +189,7 @@ namespace Common.PersistentManager
 			{
 				_rawFileData.rawData.Clear();
 			}
-			
+
 			if (PlayerPrefs.HasKey(PersistentKey))
 			{
 				JsonUtility.FromJsonOverwrite(PlayerPrefs.GetString(PersistentKey), _rawPlayerPrefsData);
@@ -211,12 +214,19 @@ namespace Common.PersistentManager
 
 			if (storageType == StorageType.File || storageType == StorageType.All)
 			{
-				File.WriteAllText(SavedDataPath, JsonUtility.ToJson(_rawFileData));
+				if (File.Exists(SavedDataPath))
+				{
+					if (File.Exists(BackupSavedDataPath)) File.Delete(BackupSavedDataPath);
+					File.Move(SavedDataPath, BackupSavedDataPath);
+				}
+
+				var serializedData = JsonUtility.ToJson(_rawFileData);
+				File.WriteAllText(SavedDataPath, serializedData, Encoding.UTF8);
 			}
 
 			_isValid = true;
 		}
-		
+
 		public event GameServiceReadyHandler ReadyEvent;
 	}
 }
